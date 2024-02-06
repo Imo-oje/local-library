@@ -6,9 +6,13 @@ const logger = require("morgan");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const catalogRouter = require("./routes/catalog");
 const { stringify } = require("querystring");
 
 const app = express();
+
+// mongoose connection [dataBase]
+require("./db");
 
 // view engine and middleware setup
 app.set("views", path.join(__dirname, "views"));
@@ -22,6 +26,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/catalog", catalogRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

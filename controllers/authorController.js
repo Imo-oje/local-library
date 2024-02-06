@@ -35,3 +35,7 @@ exports.author_update_get = asyncHandler(async (req, res, next) => {
 exports.author_update_post = asyncHandler(async (req, res, next) => {
   res.send("NOT IMPLEMENTED: Author update POST");
 });
+
+exports.author_list = asyncHandler(async (req, res, next) => {
+  res.send("NOT IMOLEMENTED: Author List");
+});
