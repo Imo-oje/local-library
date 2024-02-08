@@ -3,7 +3,7 @@ const Author = require("../models/author");
 const BookInstance = require("../models/bookinstance");
 const Genre = require("../models/genre");
 const asyncHandler = require("express-async-handler");
-
+const { ObjectId } = require("mongodb");
 exports.index = asyncHandler(async (req, res, next) => {
   // Get details of books, book instances, authors and genre counts (in parallel)
   const [
@@ -42,7 +42,26 @@ exports.book_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for a specific book.
 exports.book_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Book detail: ${req.params.id}`);
+  if (ObjectId.isValid(req.params.id)) {
+    const [book, bookInstances] = await Promise.all([
+      Book.findById(req.params.id).populate("author").populate("genre").exec(),
+      BookInstance.find({ book: req.params.id }).exec(),
+    ]);
+
+    if (book === null) {
+      const err = new Error("Book not Found");
+      err.status = 404;
+      next(err);
+    }
+
+    res.render("book_detail", {
+      title: book.title,
+      book: book,
+      book_instances: bookInstances,
+    });
+  } else {
+    res.status(500).json({ err: "INVALID DOCUMENT ID" });
+  }
 });
 
 // Display book create form on GET.
