@@ -1,14 +1,37 @@
 const Genre = require("../models/genre");
+const Book = require("../models/book");
 const asyncHandler = require("express-async-handler");
+const { ObjectId } = require("mongodb");
 
 // Display list of all Genre.
 exports.genre_list = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Genre list");
+  const allGenre = await Genre.find().sort({ name: 1 }).exec();
+  res.render("genre_list", { title: "Genre List", genre_list: allGenre });
 });
 
 // Display detail page for a specific Genre.
 exports.genre_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Genre detail: ${req.params.id}`);
+  if (ObjectId.isValid(req.params.id)) {
+    const [genre, booksInGenre] = await Promise.all([
+      Genre.findById(req.params.id).exec(),
+      Book.find({ genre: req.params.id }, "title Summary").exec(),
+    ]);
+
+    if (genre === null) {
+      // no results
+      const err = new Error("Genre not found");
+      err.status = 404;
+      return next(err);
+    }
+
+    res.render("genre_detail", {
+      title: "Genre Detail",
+      genre: genre,
+      genre_books: booksInGenre,
+    });
+  } else {
+    res.status(500).json({ err: "NOT A VALID document ID" });
+  }
 });
 
 // Display Genre create form on GET.
