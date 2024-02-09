@@ -1,5 +1,6 @@
 const BookInstance = require("../models/bookinstance");
 const asyncHandler = require("express-async-handler");
+const { ObjectId } = require("mongodb");
 
 // Display list of all BookInstances.
 exports.bookinstance_list = asyncHandler(async (req, res, next) => {
@@ -13,7 +14,22 @@ exports.bookinstance_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for a specific BookInstance.
 exports.bookinstance_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: BookInstance detail: ${req.params.id}`);
+  if (ObjectId.isValid(req.params.id)) {
+    const bookInstance = await BookInstance.findById(req.params.id)
+      .populate("book")
+      .exec();
+
+    if (bookInstance === null) {
+      const err = new Error("Book copy not found");
+      err.status = 404;
+      next(err);
+    }
+
+    res.render("bookinstance_detail", {
+      title: "Book Instance Detail",
+      bookinstance: bookInstance,
+    });
+  }
 });
 
 // Display BookInstance create form on GET.
