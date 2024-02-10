@@ -152,12 +152,28 @@ exports.book_create_post = [
 
 // Display book delete form on GET.
 exports.book_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Book delete GET");
+  if (ObjectId.isValid) {
+    // get author detsils and books (in parallel)
+    const book = await Book.findById(req.params.id).exec();
+
+    if (book === null) {
+      // no results
+      res.redirect("/catalog/books");
+    }
+
+    res.render("book_delete", {
+      title: "Delete Book",
+      book: book,
+    });
+  } else {
+    res.status(500).json({ err: "NOT A VALID DOCUMENT ID" });
+  }
 });
 
 // Handle book delete on POST.
 exports.book_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Book delete POST");
+  const book = await Book.findByIdAndDelete(req.body.bookid);
+  res.redirect("/catalog/books");
 });
 
 // Display book update form on GET.
