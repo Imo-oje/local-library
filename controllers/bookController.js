@@ -154,7 +154,10 @@ exports.book_create_post = [
 exports.book_delete_get = asyncHandler(async (req, res, next) => {
   if (ObjectId.isValid) {
     // get author detsils and books (in parallel)
-    const book = await Book.findById(req.params.id).exec();
+    const [book, allBookInstances] = await Promise.all([
+      Book.findById(req.params.id).exec(),
+      BookInstance.find({ book: req.params.id }),
+    ]);
 
     if (book === null) {
       // no results
@@ -164,6 +167,7 @@ exports.book_delete_get = asyncHandler(async (req, res, next) => {
     res.render("book_delete", {
       title: "Delete Book",
       book: book,
+      book_instances: allBookInstances,
     });
   } else {
     res.status(500).json({ err: "NOT A VALID DOCUMENT ID" });
@@ -172,8 +176,29 @@ exports.book_delete_get = asyncHandler(async (req, res, next) => {
 
 // Handle book delete on POST.
 exports.book_delete_post = asyncHandler(async (req, res, next) => {
-  const book = await Book.findByIdAndDelete(req.body.bookid);
-  res.redirect("/catalog/books");
+  if (ObjectId.isValid) {
+    // get author detsils and books (in parallel)
+    const [book, allBookInstances] = await Promise.all([
+      Book.findById(req.params.id).exec(),
+      BookInstance.find({ book: req.params.id }),
+    ]);
+
+    if (allBookInstances.length > 0) {
+      // Book has instances. Render in same way as for GET route.
+      res.render("book_delete", {
+        title: "Delete Book",
+        book: book,
+        book_instances: allBookInstances,
+      });
+      return;
+    } else {
+      // Author has no books. Delete object and redirect to the list of authors.
+      await Book.findByIdAndDelete(req.body.bookid);
+      res.redirect("/catalog/books");
+    }
+  } else {
+    res.status(500).json({ err: "NOT A VALID DOCUMENT ID" });
+  }
 });
 
 // Display book update form on GET.
