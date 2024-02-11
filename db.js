@@ -2,8 +2,10 @@
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
 
-const mongoDB =
+const dev_db_url =
   "mongodb+srv://savvyplus018:imooje@library.yxkliql.mongodb.net/local_library?retryWrites=true&w=majority";
+
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
 
 dataBase().catch((err) => console.log(err));
 async function dataBase() {
