@@ -13,5 +13,9 @@ block content
           dt
             a(href=book.url) #{book.title}
           dd #{book.summary}
+      
     else
       p This genre has no books.
+    hr
+    p
+      a(href=genre.url+'/delete') Delete Genre
