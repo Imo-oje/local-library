@@ -91,12 +91,35 @@ exports.bookinstance_create_post = [
 
 // Display BookInstance delete form on GET.
 exports.bookinstance_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: BookInstance delete GET");
+  if (ObjectId.isValid) {
+    // get book instances
+    const bookInstance = await BookInstance.findById(req.params.id).exec();
+
+    if (bookInstance === null) {
+      /// no result
+      res.redirect("/catalog/bookinstances");
+    }
+
+    res.render("bookinstance_delete", {
+      title: "Delete Book Instance",
+      book_instance: bookInstance,
+    });
+  } else {
+    res.status(500).json({ err: "NOT A VALID DOCIMENT ID" });
+  }
 });
 
 // Handle BookInstance delete on POST.
 exports.bookinstance_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: BookInstance delete POST");
+  if (ObjectId.isValid) {
+    // get book instances
+    const bookInstance = await BookInstance.findById(req.params.id).exec();
+
+    await BookInstance.findByIdAndDelete(req.body.bookinstanceid);
+    res.redirect("/catalog/bookinstances");
+  } else {
+    res.status(500).json({ err: "NOT A VALID DOCIMENT ID" });
+  }
 });
 
 // Display BookInstance update form on GET.
