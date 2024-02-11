@@ -94,7 +94,7 @@ exports.author_create_post = [
 
 // Display Author delete form on GET.
 exports.author_delete_get = asyncHandler(async (req, res, next) => {
-  if (ObjectId.isValid) {
+  if (ObjectId.isValid(req.params.id)) {
     // get author details and books (in parallel)
     const [author, allBooksByAuthor] = await Promise.all([
       Author.findById(req.params.id).exec(),

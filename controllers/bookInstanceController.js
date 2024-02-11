@@ -91,7 +91,7 @@ exports.bookinstance_create_post = [
 
 // Display BookInstance delete form on GET.
 exports.bookinstance_delete_get = asyncHandler(async (req, res, next) => {
-  if (ObjectId.isValid) {
+  if (ObjectId.isValid(req.params.id)) {
     // get book instances
     const bookInstance = await BookInstance.findById(req.params.id).exec();
 
@@ -111,7 +111,7 @@ exports.bookinstance_delete_get = asyncHandler(async (req, res, next) => {
 
 // Handle BookInstance delete on POST.
 exports.bookinstance_delete_post = asyncHandler(async (req, res, next) => {
-  if (ObjectId.isValid) {
+  if (ObjectId.isValid(req.params.id)) {
     // get book instances
     const bookInstance = await BookInstance.findById(req.params.id).exec();
 

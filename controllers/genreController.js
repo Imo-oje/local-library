@@ -82,7 +82,7 @@ exports.genre_create_post = [
 
 // Display Genre delete form on GET.
 exports.genre_delete_get = asyncHandler(async (req, res, next) => {
-  if (ObjectId.isValid) {
+  if (ObjectId.isValid(req.params.id)) {
     // get book details and genre (in parallel)
     const [genre, allBooksWithGenre] = await Promise.all([
       Genre.findById(req.params.id).exec(),
@@ -106,7 +106,7 @@ exports.genre_delete_get = asyncHandler(async (req, res, next) => {
 
 // Handle Genre delete on POST.
 exports.genre_delete_post = asyncHandler(async (req, res, next) => {
-  if (ObjectId.isValid) {
+  if (ObjectId.isValid(req.params.id)) {
     // get book details and genre (in parallel)
     const [genre, allBooksWithGenre] = await Promise.all([
       Genre.findById(req.params.id).exec(),
