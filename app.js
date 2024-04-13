@@ -3,6 +3,9 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const MongoStore = require("connect-mongo");
+const session = require("express-session");
+const passport = require("passport");
 
 const compression = require("compression");
 const helmet = require("helmet");
@@ -17,6 +20,7 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const catalogRouter = require("./routes/catalog");
 const authRouter = require("./routes/auth");
+const passport = require("passport");
 
 const app = express();
 
@@ -45,6 +49,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(
+  session({
+    secret: "cat",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      dbName: "local_library",
+      collectionName: "session",
+    }),
+  })
+);
+app.use(passport.authenticate("session"));
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter);

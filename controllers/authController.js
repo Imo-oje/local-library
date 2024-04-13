@@ -15,28 +15,16 @@ passport.use(
         });
       }
 
-      crypto.pbkdf2(
-        password,
-        user.salt,
-        310000,
-        32,
-        "sha256",
-        (error, hashedPassword) => {
-          if (error) return done(error);
+      crypto.pbkdf2(password, user.salt, 310000, 32, "sha256", (error, hashedPassword) => {
+        if (error) return done(error);
 
-          if (
-            !crypto.timingSafeEqual(
-              Buffer.from(user.password, "hex"),
-              hashedPassword
-            )
-          ) {
-            return done(null, false, {
-              message: "Incorrect username or Password.",
-            });
-          }
-          return done(null, user);
+        if (!crypto.timingSafeEqual(Buffer.from(user.password, "hex"), hashedPassword)) {
+          return done(null, false, {
+            message: "Incorrect username or Password.",
+          });
         }
-      );
+        return done(null, user);
+      });
     } catch (error) {
       return done(error);
     }
