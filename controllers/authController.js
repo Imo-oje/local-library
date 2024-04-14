@@ -7,7 +7,7 @@ const crypto = require("crypto");
 passport.use(
   new LocalStrategy(async (username, password, done) => {
     try {
-      const user = User.findOne({ username: username });
+      const user = await User.findOne({ username: username });
 
       if (!user) {
         return done(null, false, {
@@ -49,7 +49,7 @@ exports.redirectToLoginPage = asyncHandler(async (req, res, next) => {
 
 //========== signup handler ===========
 exports.signup = asyncHandler(async (req, res, next) => {
-  res.render("signup_form", { title: "signup" });
+  res.render("signup_form", { title: "signup" }); // send flash error message ==== TODO
 });
 
 exports.signup_post = asyncHandler(async (req, res, next) => {
@@ -61,8 +61,7 @@ exports.signup_post = asyncHandler(async (req, res, next) => {
       const userExists = await User.findOne({ username: req.body.username });
 
       if (userExists) {
-        console.log("user already exists!!!");
-        console.log("Existing User", userExists);
+        //flash error here "user already exists"  ==== TODO
         return res.redirect("/auth/login");
       }
 
@@ -83,8 +82,6 @@ exports.signup_post = asyncHandler(async (req, res, next) => {
         username: savedUser.username,
       };
 
-      console.log(user);
-
       req.login(user, (error) => {
         if (error) return next(error);
         res.redirect("/");
@@ -97,7 +94,33 @@ exports.signup_post = asyncHandler(async (req, res, next) => {
 
 //======= login handler ===========
 exports.login = asyncHandler(async (req, res, next) => {
-  res.render("login_form", { title: "Login" });
+  res.render("login_form", { title: "Login" }); //send flash errormessage ==== TODO
 });
 
-exports.login_post = asyncHandler(async (req, res, next) => {});
+exports.login_post = (req, res, next) => {
+  passport.authenticate("local", (error, user, info) => {
+    if (error) return next(error);
+
+    if (!user) {
+      let message = "Failed to login";
+      if (info && info.message) {
+        message = info.message;
+      }
+
+      // flash error message here
+      return res.redirect("/auth/login");
+    }
+    req.login(user, (error) => {
+      if (error) return next(error);
+      return res.redirect("/dashboard");
+    });
+  })(req, res, next);
+};
+
+//===logout handler===
+exports.logout = asyncHandler(async (req, res, next) => {
+  req.logout((error) => {
+    if (error) return next(error);
+    res.redirect("/");
+  });
+});
