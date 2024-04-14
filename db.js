@@ -10,7 +10,7 @@ const mongoDB = process.env.MONGODB_URI || dev_db_url;
 
 dataBase().catch((err) => console.log(err));
 async function dataBase() {
-  await mongoose.connect(dev_db_url);
+  await mongoose.connect(mongoDB);
 }
 
 module.exports = { dataBase };

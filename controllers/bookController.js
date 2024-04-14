@@ -8,19 +8,14 @@ const { body, validationResult } = require("express-validator");
 
 exports.index = asyncHandler(async (req, res, next) => {
   // Get details of books, book instances, authors and genre counts (in parallel)
-  const [
-    numBooks,
-    numBookInstances,
-    numAvailableBookInstances,
-    numAuthors,
-    numGenres,
-  ] = await Promise.all([
-    Book.countDocuments({}).exec(),
-    BookInstance.countDocuments({}).exec(),
-    BookInstance.countDocuments({ status: "Available" }).exec(),
-    Author.countDocuments({}).exec(),
-    Genre.countDocuments({}).exec(),
-  ]);
+  const [numBooks, numBookInstances, numAvailableBookInstances, numAuthors, numGenres] =
+    await Promise.all([
+      Book.countDocuments({}).exec(),
+      BookInstance.countDocuments({}).exec(),
+      BookInstance.countDocuments({ status: "Available" }).exec(),
+      Author.countDocuments({}).exec(),
+      Genre.countDocuments({}).exec(),
+    ]);
 
   res.render("index", {
     title: "Local Library Home",
@@ -34,10 +29,7 @@ exports.index = asyncHandler(async (req, res, next) => {
 
 // Display list of all books.
 exports.book_list = asyncHandler(async (req, res, next) => {
-  const allBooks = await Book.find({}, "title author")
-    .sort({ title: 1 })
-    .populate("author")
-    .exec();
+  const allBooks = await Book.find({}, "title author").sort({ title: 1 }).populate("author").exec();
 
   res.render("book_list", { title: "Book List", book_list: allBooks });
 });
@@ -85,25 +77,15 @@ exports.book_create_post = [
   // Convert the genre to an array.
   (req, res, next) => {
     if (!Array.isArray(req.body.genre)) {
-      req.body.genre =
-        typeof req.body.genre === "undefined" ? [] : [req.body.genre];
+      req.body.genre = typeof req.body.genre === "undefined" ? [] : [req.body.genre];
     }
     next();
   },
 
   // Validate and sanitize fields.
-  body("title", "Title must not be empty.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body("author", "Author must not be empty.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body("summary", "Summary must not be empty.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
+  body("title", "Title must not be empty.").trim().isLength({ min: 1 }).escape(),
+  body("author", "Author must not be empty.").trim().isLength({ min: 1 }).escape(),
+  body("summary", "Summary must not be empty.").trim().isLength({ min: 1 }).escape(),
   body("isbn", "ISBN must not be empty").trim().isLength({ min: 1 }).escape(),
   body("genre.*").escape(),
 
@@ -235,25 +217,15 @@ exports.book_update_post = [
   // Convert the genre to an array.
   (req, res, next) => {
     if (!Array.isArray(req.body.genre)) {
-      req.body.genre =
-        typeof req.body.genre === "undefined" ? [] : [req.body.genre];
+      req.body.genre = typeof req.body.genre === "undefined" ? [] : [req.body.genre];
     }
     next();
   },
 
   // Validate and sanitize fields.
-  body("title", "Title must not be empty.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body("author", "Author must not be empty.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body("summary", "Summary must not be empty.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
+  body("title", "Title must not be empty.").trim().isLength({ min: 1 }).escape(),
+  body("author", "Author must not be empty.").trim().isLength({ min: 1 }).escape(),
+  body("summary", "Summary must not be empty.").trim().isLength({ min: 1 }).escape(),
   body("isbn", "ISBN must not be empty").trim().isLength({ min: 1 }).escape(),
   body("genre.*").escape(),
 

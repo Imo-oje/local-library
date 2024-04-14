@@ -1,3 +1,5 @@
+require("dotenv");
+
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
@@ -20,7 +22,6 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const catalogRouter = require("./routes/catalog");
 const authRouter = require("./routes/auth");
-const passport = require("passport");
 
 const app = express();
 
@@ -58,7 +59,7 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
       dbName: "local_library",
-      collectionName: "session",
+      collectionName: "sessions",
     }),
   })
 );

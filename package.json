@@ -30,6 +30,6 @@
     "pug": "2.0.0-beta11"
   },
   "devDependencies": {
-    "dotenv": "^16.4.3"
+    "dotenv": "^16.4.5"
   }
 }
