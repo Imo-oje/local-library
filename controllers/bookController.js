@@ -24,6 +24,7 @@ exports.index = asyncHandler(async (req, res, next) => {
     book_instance_available_count: numAvailableBookInstances,
     author_count: numAuthors,
     genre_count: numGenres,
+    user: req.user,
   });
 });
 

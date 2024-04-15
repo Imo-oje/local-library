@@ -58,7 +58,7 @@ exports.signup_post = asyncHandler(async (req, res, next) => {
     if (error) return next(error);
     try {
       //check if user exists
-      const userExists = await User.findOne({ username: req.body.username });
+      const userExists = await User.findOne({ username: req.body.username }).exec();
 
       if (userExists) {
         //flash error here "user already exists"  ==== TODO
@@ -84,7 +84,7 @@ exports.signup_post = asyncHandler(async (req, res, next) => {
 
       req.login(user, (error) => {
         if (error) return next(error);
-        res.redirect("/");
+        res.redirect("/dashboard");
       });
     } catch (error) {
       return next(error);
