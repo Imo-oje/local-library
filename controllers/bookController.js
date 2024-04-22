@@ -32,7 +32,9 @@ exports.index = asyncHandler(async (req, res, next) => {
 exports.book_list = asyncHandler(async (req, res, next) => {
   const allBooks = await Book.find({}, "title author").sort({ title: 1 }).populate("author").exec();
 
-  res.render("book_list", { title: "Book List", book_list: allBooks });
+  /* res.render("book_list", { title: "Book List", book_list: allBooks }); */
+
+  res.json(allBooks);
 });
 
 // Display detail page for a specific book.
@@ -49,11 +51,13 @@ exports.book_detail = asyncHandler(async (req, res, next) => {
       next(err);
     }
 
-    res.render("book_detail", {
+    /* res.render("book_detail", {
       title: book.title,
       book: book,
       book_instances: bookInstances,
-    });
+    }); */
+
+    res.json({ book, instances: bookInstances });
   } else {
     res.status(500).json({ err: "INVALID DOCUMENT ID" });
   }

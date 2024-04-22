@@ -62,7 +62,7 @@ exports.signup_post = asyncHandler(async (req, res, next) => {
 
       if (userExists) {
         //flash error here "user already exists"  ==== TODO
-        return res.redirect("/auth/login");
+        return res.json({ message: "username is not available, try a different one" });
       }
 
       //user does'nt exist -- create and save user to data base
@@ -84,7 +84,7 @@ exports.signup_post = asyncHandler(async (req, res, next) => {
 
       req.login(user, (error) => {
         if (error) return next(error);
-        res.redirect("/dashboard");
+        res.send(user);
       });
     } catch (error) {
       return next(error);

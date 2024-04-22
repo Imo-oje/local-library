@@ -8,6 +8,8 @@ const logger = require("morgan");
 const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const passport = require("passport");
+const cors = require("cors");
+const corsOptions = require("./config/corsOptions");
 
 const compression = require("compression");
 const helmet = require("helmet");
@@ -26,8 +28,10 @@ const dashboardRouter = require("./routes/dashboard");
 
 const app = express();
 
+app.use(cors(corsOptions));
+
 // mongoose connection [dataBase]
-require("./db");
+require("./config/db");
 
 app.use(compression()); // compress all routees
 

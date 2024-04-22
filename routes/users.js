@@ -4,8 +4,6 @@ const router = express.Router();
 const user_controller = require("../controllers/userController");
 
 /* GET users listing. */
-router.get("/", function (req, res) {
-  res.redirect("/catalog");
-});
+router.get("/", user_controller.get_users);
 
 module.exports = router;
