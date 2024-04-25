@@ -1,4 +1,4 @@
-require("dotenv");
+require("dotenv").config();
 
 const createError = require("http-errors");
 const express = require("express");
@@ -10,6 +10,7 @@ const session = require("express-session");
 const passport = require("passport");
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
+const cloudinary = require("cloudinary").v2;
 
 const compression = require("compression");
 const helmet = require("helmet");
@@ -18,6 +19,12 @@ const RateLimit = require("express-rate-limit");
 const limiter = RateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 20,
+});
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const indexRouter = require("./routes/index");
@@ -55,6 +62,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "img-src 'self' data: https://res.cloudinary.com");
+  next();
+});
 
 app.use(
   session({

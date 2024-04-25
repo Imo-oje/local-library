@@ -5,6 +5,15 @@ const Genre = require("../models/genre");
 const asyncHandler = require("express-async-handler");
 const { ObjectId } = require("mongodb");
 const { body, validationResult } = require("express-validator");
+const cloudinary = require("cloudinary").v2;
+const { uploads, URI } = require("../config/upload");
+
+const cloudinaryOptions = {
+  use_filename: true,
+  resource_type: "image",
+  unique_filename: false,
+  overwrite: true,
+};
 
 exports.index = asyncHandler(async (req, res, next) => {
   // Get details of books, book instances, authors and genre counts (in parallel)
@@ -32,9 +41,9 @@ exports.index = asyncHandler(async (req, res, next) => {
 exports.book_list = asyncHandler(async (req, res, next) => {
   const allBooks = await Book.find({}, "title author").sort({ title: 1 }).populate("author").exec();
 
-  /* res.render("book_list", { title: "Book List", book_list: allBooks }); */
+  res.render("book_list", { title: "Book List", book_list: allBooks });
 
-  res.json(allBooks);
+  /* res.json(allBooks); */
 });
 
 // Display detail page for a specific book.
@@ -51,13 +60,13 @@ exports.book_detail = asyncHandler(async (req, res, next) => {
       next(err);
     }
 
-    /* res.render("book_detail", {
+    res.render("book_detail", {
       title: book.title,
       book: book,
       book_instances: bookInstances,
-    }); */
+    });
 
-    res.json({ book, instances: bookInstances });
+    /* res.json({ book, instances: bookInstances }); */
   } else {
     res.status(500).json({ err: "INVALID DOCUMENT ID" });
   }
@@ -80,6 +89,7 @@ exports.book_create_get = asyncHandler(async (req, res, next) => {
 // Handle book create on POST.
 exports.book_create_post = [
   // Convert the genre to an array.
+  uploads.single("cover"),
   (req, res, next) => {
     if (!Array.isArray(req.body.genre)) {
       req.body.genre = typeof req.body.genre === "undefined" ? [] : [req.body.genre];
@@ -99,6 +109,16 @@ exports.book_create_post = [
     // extract validation error from request
     const errors = validationResult(req);
 
+    let coverImgUrl = "";
+
+    if (req.file) {
+      const file = URI(req).content;
+      const result = await cloudinary.uploader.upload(file, cloudinaryOptions);
+      coverImgUrl = result.secure_url;
+    } else {
+      res.json({ error: "something went wrong while processing your request" });
+    }
+
     // create a book object with escaped and trimmed data
     const book = new Book({
       title: req.body.title,
@@ -106,6 +126,7 @@ exports.book_create_post = [
       summary: req.body.summary,
       isbn: req.body.isbn,
       genre: req.body.genre,
+      cover: coverImgUrl,
     });
     if (!errors.isEmpty()) {
       // There are errors. Render form again with sanitized values/error messages.
@@ -219,6 +240,7 @@ exports.book_update_get = asyncHandler(async (req, res, next) => {
 
 // Handle book update on POST.
 exports.book_update_post = [
+  uploads.single("cover"),
   // Convert the genre to an array.
   (req, res, next) => {
     if (!Array.isArray(req.body.genre)) {
@@ -239,6 +261,16 @@ exports.book_update_post = [
     // Extract the validation errors from a request.
     const errors = validationResult(req);
 
+    let coverImgUrl = "";
+
+    if (req.file) {
+      const file = URI(req).content;
+      const result = await cloudinary.uploader.upload(file, cloudinaryOptions);
+      coverImgUrl = result.secure_url;
+    } else {
+      res.json({ error: "something went wrong while processing your request" });
+    }
+
     // Create a Book object with escaped/trimmed data and old id.
     const book = new Book({
       title: req.body.title,
@@ -247,6 +279,7 @@ exports.book_update_post = [
       isbn: req.body.isbn,
       genre: typeof req.body.genre === "undefined" ? [] : req.body.genre,
       _id: req.params.id, // This is required, or a new ID will be assigned!
+      cover: coverImgUrl,
     });
 
     if (!errors.isEmpty()) {
