@@ -48,6 +48,7 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       "script-src": ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
+      "image-src": ["'self'", "https://res.cloudinary.com/dw5lxqaz7/image"],
     },
   })
 );
